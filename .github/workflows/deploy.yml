@@ -52,7 +52,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
-        port: 8000
+        port: 22
         script: |
           # Navigate to app directory and start the script silently in the background
           cd ~/app
