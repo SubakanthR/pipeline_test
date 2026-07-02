@@ -54,8 +54,6 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          # Navigate to app directory and start the script silently in the background
           cd ~/app
-          nohup python3 server.py > server.log 2>&1 &
-          echo "Application started natively in the background!"
-
+          sudo nohup python3 server.py 80 > server.log 2>&1 &
+          echo "Application started natively on Port 80!"
