@@ -1,61 +1,22 @@
-name: Native Python Deployment Pipeline
+name: Deploy to EC2
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Source Code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Deploy to AWS EC2 Natively
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2__HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        script: |
-          # 1. Update the cloud server packages safely
-          sudo apt-get update -y
-          
-          # 2. Install Python if it is missing (Ubuntu has it pre-installed)
-          sudo apt-get install -y python3
-          
-          # 3. Clean up old deployments if they exist
-          sudo killall python3 || true
-          sudo rm -rf ~/app
-          
-          # 4. Create your application workspace folder
-          mkdir -p ~/app
-          
-          # 5. Move your files into the workspace folder
-          echo '${{ github.workspace }}'
-          
-    - name: Copy files via SSH
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.EC2__HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        source: "index.html,server.py"
-        target: "~/app"
-
-    - name: Start Application Server Natively
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2__HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        port: 22
-        script: |
-          cd ~/app
-          nohup python3 server.py 8000 > server.log 2>&1 &
-          sleep 2
-          exit 0
-
+      - name: Deploy via SSH
+        uses: easingthemes/ssh-deploy@v5
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.EC2_HOST }}
+          REMOTE_USER: ${{ secrets.EC2_USERNAME }}
+          SOURCE: "./"
+          TARGET: "/var/www/html"
+          EXCLUDE: "/.git/, /.github/, server.py"
