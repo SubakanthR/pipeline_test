@@ -1,8 +1,13 @@
 import http.server
 import socketserver
 import os
+import sys
 
-PORT = 8000
+# Look for a port passed by the pipeline (like 80). If none is given, default to 8000.
+if len(sys.argv) > 1:
+    PORT = int(sys.argv[1])
+else:
+    PORT = 8000
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -16,7 +21,7 @@ print(f"Starting server natively on port {PORT}...")
 socketserver.TCPServer.allow_reuse_address = True
 
 with socketserver.TCPServer(("", PORT), CustomHandler) as httpd:
-    print(f"Server is actively running. Open http://localhost:{PORT} in your browser.")
+    print(f"Server is actively running. Open your browser.")
     print("Press Ctrl+C inside this terminal window to stop.")
     try:
         httpd.serve_forever()
